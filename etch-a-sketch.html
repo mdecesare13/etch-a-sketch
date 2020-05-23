@@ -1,0 +1,140 @@
+<style>
+    .container {
+        position: relative;
+        margin: auto;
+        display: grid;
+        border-style: solid;
+        border-color: black;
+        border-width: 1px;
+        width: 960px;
+        height: 960px;
+    }
+    .inner-container {
+        border-style: solid;
+        border-color: black;
+        border-width: 1px; 
+    }
+</style>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Matt's Etch-A-Sketch</title>
+  <meta charset="UTF-8"/>
+</head>
+<body>
+    <button id="clear" class="control">Clear</button>
+    <button id="resize-grid" class="control">Resize Grid</button>
+    <button id="random-color" class="control">Randomize Color</button>
+    <button id="black-pen" class="control">Black Pen</button>
+    <input id="color-picker" class="control-input" type="color">
+    <button id="apply-color" class="control">Apply</button>
+    <div id="container" class="container">
+
+    </div>
+</body>
+</html>
+
+
+<script>
+    const container = document.querySelector('#container');
+    container.style.cssText = `grid-template-columns: repeat(16, 60px);`;
+    container.style.cssText = `grid-template-rows: repeat(16, 60px);`;
+
+    // Create the inner divs
+    for (let i = 0; i < 16 * 16; i++) {
+        const newDiv = document.createElement('div');
+        newDiv.classList.add('inner-container');
+        newDiv.style.width = `${960 / 16}px`;
+        newDiv.style.height = `${960 / 16}px`;
+        container.style.gridTemplateColumns = 'repeat(16, 60px)';
+        container.style.gridTemplateRows = 'repeat(16, 60px)';
+        container.appendChild(newDiv);
+    }
+    
+    // Functions for coloring the canvas when the mouse is over the square
+    function colorSquareBlack(e) {
+        e.toElement.style.backgroundColor = 'black';
+    }
+    function colorSquareRandom(e) {
+        let red = Math.floor(Math.random() * 256);
+        let green = Math.floor(Math.random() * 256);
+        let blue = Math.floor(Math.random() * 256); 
+        e.toElement.style.backgroundColor = `rgb(${red}, ${green}, ${blue})`;
+    }
+    function applyColorSquare(e) {
+        let colorPicker = document.getElementById('color-picker');
+        colorSelected = colorPicker.value;
+        e.toElement.style.backgroundColor = `${colorSelected}`;
+    }
+
+
+    function clear() {
+        let newCanvas = Array.from(document.getElementsByClassName('inner-container'));
+        newCanvas.forEach(square => square.style.backgroundColor = 'white');
+    }
+
+    function recreateGrid(size) {
+        // Remove all divs currently in the container and restyle columns
+        container.innerHTML = "";
+        container.style.gridTemplateColumns = `repeat(${size}, ${960/size}px)`;
+        container.style.gridTemplateRows = `repeat(${size}, ${960/size}px)`;
+
+        for (let i = 0; i < size * size; i++) {
+            const newDiv = document.createElement('div');
+            newDiv.classList.add('inner-container');
+            newDiv.style.width = `${960 / size}px`;
+            newDiv.style.height = `${960 / size}px`;
+            container.appendChild(newDiv);
+        }
+
+        let newCanvas = Array.from(document.getElementsByClassName('inner-container'));
+        newCanvas.forEach(square => square.addEventListener('mouseover', colorSquareBlack));
+    }
+
+    function resizeGrid() {
+        let gridDimensions = prompt("Choose the grid size", "Must be between 10 and 240!");
+        let dimension = parseInt(gridDimensions);
+        if (dimension < 10) {
+            dimension = 10;
+        } else if (dimension > 240) {
+            dimension = 240;
+        }
+        recreateGrid(dimension);
+        console.log(canvas);
+    }
+
+    // Initialize divs with event listener to color the square when hovered over
+    const canvas = Array.from(document.getElementsByClassName('inner-container'));
+    canvas.forEach(square => square.addEventListener('mouseover', colorSquareBlack));
+
+    // Add clear button functionality
+    const clearButton = document.getElementById('clear');
+    clearButton.addEventListener('click', clear);
+
+    // Add resize grid button functionality
+    const resizeButton = document.getElementById('resize-grid');
+    resizeButton.addEventListener('click', resizeGrid);
+
+    // Add black and random color functionality
+    const blackButton = document.getElementById('black-pen');
+    blackButton.addEventListener('click', () => {
+        let newCanvas = Array.from(document.getElementsByClassName('inner-container'));
+        newCanvas.forEach(square => square.removeEventListener('mouseover', colorSquareRandom));
+        newCanvas.forEach(square => square.addEventListener('mouseover', colorSquareBlack));
+    });
+    const colorButton = document.getElementById('random-color');
+    colorButton.addEventListener('click', () => {
+        let newCanvas = Array.from(document.getElementsByClassName('inner-container'));
+        newCanvas.forEach(square => square.removeEventListener('mouseover', colorSquareBlack));
+        newCanvas.forEach(square => square.removeEventListener('mouseover', applyColorSquare));
+        newCanvas.forEach(square => square.addEventListener('mouseover', colorSquareRandom));
+    });
+    const pickColorButton = document.getElementById('apply-color');
+    pickColorButton.addEventListener('click', () => {
+        let newCanvas = Array.from(document.getElementsByClassName('inner-container'));
+        newCanvas.forEach(square => square.removeEventListener('mouseover', colorSquareBlack));
+        newCanvas.forEach(square => square.removeEventListener('mouseover', colorSquareRandom));
+        newCanvas.forEach(square => square.addEventListener('mouseover', applyColorSquare));
+    });
+</script>
